@@ -41,10 +41,10 @@ public class Brincadeira {
     public void setQtdeMaximaJogadores(int qtdeMaximaJogadores){
         this.qtdeMaximaJogadores=qtdeMaximaJogadores;
     }
-    public String habilidadePrincipal() {
+    public String getHabilidadePrincipal() {
         return habilidadePrincipal;
     }
-    public void habilidadePrincipal(String habilidadePrincipal){
+    public void getHabilidadePrincipal(String habilidadePrincipal){
         this.habilidadePrincipal=habilidadePrincipal;
     }
 }
