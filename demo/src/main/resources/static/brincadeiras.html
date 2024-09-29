@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gerenciamento de Brincadeiras</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+</head>
+
+<body>
+    <h1>Gerenciamento de Brincadeiras</h1>
+
+    <table id="tabelaFormulario">
+        <tr> <td>ID:</td> <td><input type="text" id="txtId"></td> </tr>
+        <tr> <td>Nome:</td> <td><input type="text" id="txtNome"></td> </tr>
+        <tr> <td>Qtd. Mínima Jogadores:</td> <td><input type="number" id="txtQtdeMinima"></td> </tr>
+        <tr> <td>Qtd. Máxima Jogadores:</td> <td><input type="number" id="txtQtdeMaxima"></td> </tr>
+        <tr> <td>Habilidade Principal:</td> <td><input type="text" id="txtHabilidadePrincipal"></td> </tr>
+        <tr><td></td><td>
+            <input type="button" value="Salvar" onclick="salvarBrincadeira()" id="btnSalvar">
+            <input type="button" value="Apagar" onclick="apagarBrincadeira()" id="btnApagar">
+            <input type="button" value="Cancelar" onclick="cancelarEdicao()" id="btnCancelar">
+        </td></tr>
+    </table>
+
+    <p style="font-weight:bold" id="paragrafoMensagem"></p>
+
+    <table id="tabelaBrincadeiras">
+        <tr><td><input type="button" value="Novo" onclick="novaBrincadeira()" id="btnNovo"></td> <td></td> <td></td></tr>
+        <tr> <th>ID</th> <th>Nome</th> <th>Qtd. Mínima</th> <th>Qtd. Máxima</th> <th>Habilidade Principal</th> </tr>
+        <tbody id="corpoTabelaBrincadeiras"> </tbody>
+    </table>
+
+    <script src="brincadeiras-rest.js"></script>
+    <script>
+        const tabelaBrincadeiras = document.querySelector('#tabelaBrincadeiras');
+        const tabelaFormulario = document.querySelector('#tabelaFormulario');
+        const corpoTabela = document.querySelector('#corpoTabelaBrincadeiras');
+        const paragrafoMensagem = document.querySelector('#paragrafoMensagem');
+        const txtNome = document.querySelector('#txtNome');
+        const txtQtdeMinima = document.querySelector('#txtQtdeMinima');
+        const txtQtdeMaxima = document.querySelector('#txtQtdeMaxima');
+        const txtHabilidadePrincipal = document.querySelector('#txtHabilidadePrincipal');
+        const txtId = document.querySelector('#txtId');
+
+        const btnNovo = document.querySelector('#btnNovo');
+        const btnSalvar = document.querySelector('#btnSalvar');
+        const btnApagar = document.querySelector('#btnApagar');
+        const btnCancelar = document.querySelector('#btnCancelar');
+        var criandoNovaBrincadeira = false;
+
+        inicializar();
+
+        function inicializar() {
+            criandoNovaBrincadeira = false;
+            paragrafoMensagem.textContent = 'Pressione o botão Novo ou selecione uma brincadeira da lista:';
+            txtId.value = '';
+            txtNome.value = '';
+            txtQtdeMinima.value = '';
+            txtQtdeMaxima.value = '';
+            txtHabilidadePrincipal.value = '';
+            txtId.disabled = true;
+            txtNome.disabled = true;
+            txtQtdeMinima.disabled = true;
+            txtQtdeMaxima.disabled = true;
+            txtHabilidadePrincipal.disabled = true;
+
+            btnNovo.disabled = false;
+            btnSalvar.disabled = true;
+            btnApagar.disabled = true;
+            btnCancelar.disabled = true;
+
+            tabelaFormulario.style.display = 'none';
+            tabelaBrincadeiras.style.display = 'inline';
+
+            listarTodasBrincadeiras();
+        }
+
+        function listarTodasBrincadeiras() {
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = "Erro ao listar brincadeiras (código " + error.message + ")";
+            }
+            asyncLerBrincadeiras(preencherTabela, errorHandler);
+        }
+
+        function preencherTabela(brincadeiras) {
+            corpoTabela.innerHTML = "";
+            var n = brincadeiras.length;
+            for (var i = 0; i < n; i++) {
+                let b = brincadeiras[i];
+                let linha = corpoTabela.insertRow();
+                let celulaId = linha.insertCell();
+                let celulaNome = linha.insertCell();
+                let celulaQtdeMinima = linha.insertCell();
+                let celulaQtdeMaxima = linha.insertCell();
+                let celulaHabilidade = linha.insertCell();
+
+                let alink = document.createElement('a');
+                alink.textContent = b.id;
+                alink.href = "javascript:void(0)";
+                alink.onclick = function() { selecionarBrincadeira(b.id); };
+                celulaId.appendChild(alink);
+                celulaNome.textContent = b.nome;
+                celulaQtdeMinima.textContent = b.qtdeMinimaJogadores;
+                celulaQtdeMaxima.textContent = b.qtdeMaximaJogadores;
+                celulaHabilidade.textContent = b.habilidadePrincipal;
+            }
+        }
+
+        function selecionarBrincadeira(id) {
+            criandoNovaBrincadeira = false;
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = "Erro ao selecionar brincadeira (código " + error.message + ")";
+            }
+            asyncLerBrincadeiraById(id, preencherFormulario, errorHandler);
+        }
+
+        function preencherFormulario(brincadeira) {
+            paragrafoMensagem.textContent = 'Altere e salve os dados da brincadeira, ou apague o registro.';
+            txtId.value = brincadeira.id;
+            txtNome.value = brincadeira.nome;
+            txtQtdeMinima.value = brincadeira.qtdeMinimaJogadores;
+            txtQtdeMaxima.value = brincadeira.qtdeMaximaJogadores;
+            txtHabilidadePrincipal.value = brincadeira.habilidadePrincipal;
+
+            txtId.disabled = true;
+            txtNome.disabled = false;
+            txtQtdeMinima.disabled = false;
+            txtQtdeMaxima.disabled = false;
+            txtHabilidadePrincipal.disabled = false;
+
+            btnNovo.disabled = true;
+            btnSalvar.disabled = false;
+            btnApagar.disabled = false;
+            btnCancelar.disabled = false;
+
+            tabelaFormulario.style.display = 'inline';
+            tabelaBrincadeiras.style.display = 'none';
+        }
+
+        function novaBrincadeira() {
+            paragrafoMensagem.textContent = 'Preencha os dados da nova brincadeira...';
+            criandoNovaBrincadeira = true;
+
+            txtId.value = '';
+            txtNome.value = '';
+            txtQtdeMinima.value = '';
+            txtQtdeMaxima.value = '';
+            txtHabilidadePrincipal.value = '';
+
+            txtId.disabled = true;
+            txtNome.disabled = false;
+            txtQtdeMinima.disabled = false;
+            txtQtdeMaxima.disabled = false;
+            txtHabilidadePrincipal.disabled = false;
+
+            btnNovo.disabled = true;
+            btnSalvar.disabled = false;
+            btnApagar.disabled = true;
+            btnCancelar.disabled = false;
+
+            tabelaFormulario.style.display = 'inline';
+            tabelaBrincadeiras.style.display = 'none';
+        }
+
+        function salvarBrincadeira() {
+            if (criandoNovaBrincadeira) {
+                criarBrincadeira();
+            } else {
+                alterarBrincadeira();
+            }
+        }
+
+        function criarBrincadeira() {
+            const dadosBrincadeira = {
+                'nome': txtNome.value,
+                'qtdeMinimaJogadores': txtQtdeMinima.value,
+                'qtdeMaximaJogadores': txtQtdeMaxima.value,
+                'habilidadePrincipal': txtHabilidadePrincipal.value
+            };
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao criar nova brincadeira (código ' + error.message + ')';
+            }
+            asyncCriarBrincadeira(dadosBrincadeira, inicializar, errorHandler);
+        }
+
+        function alterarBrincadeira() {
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao alterar brincadeira (código ' + error.message + ')';
+            }
+            const dadosBrincadeira = {
+                'id': txtId.value,
+                'nome': txtNome.value,
+                'qtdeMinimaJogadores': txtQtdeMinima.value,
+                'qtdeMaximaJogadores': txtQtdeMaxima.value,
+                'habilidadePrincipal': txtHabilidadePrincipal.value
+            };
+            asyncAlterarBrincadeira(dadosBrincadeira, inicializar, errorHandler);
+        }
+
+        function cancelarEdicao() {
+            inicializar();
+        }
+
+        function apagarBrincadeira() {
+            const id = txtId.value;
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao apagar brincadeira (código ' + error.message + ')';
+            }
+            asyncApagarBrincadeira(id, inicializar, errorHandler);
+        }
+
+    </script>
+</
