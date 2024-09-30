@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gerenciamento de Jogos de Tabuleiro</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+</head>
+
+<body>
+    <h1>Gerenciamento de Jogos de Tabuleiro</h1>
+
+    <table id="tabelaFormulario">
+        <tr> <td>ID:</td> <td><input type="text" id="txtId"></td> </tr>
+        <tr> <td>Nome:</td> <td><input type="text" id="txtNome"></td> </tr>
+        <tr> <td>Qtd. Mínima Jogadores:</td> <td><input type="number" id="txtQtdeMinima"></td> </tr>
+        <tr> <td>Qtd. Máxima Jogadores:</td> <td><input type="number" id="txtQtdeMaxima"></td> </tr>
+        <tr> <td>Idade Mínima:</td> <td><input type="number" id="txtIdadeMinima"></td> </tr>
+        <tr> <td>Duração Média (minutos):</td> <td><input type="number" id="txtDuracaoMedia"></td> </tr>
+        <tr> <td>Ano de Lançamento:</td> <td><input type="number" id="txtAnoLancamento"></td> </tr>
+        <tr><td></td><td>
+            <input type="button" value="Salvar" onclick="salvarJogoTabuleiro()" id="btnSalvar">
+            <input type="button" value="Apagar" onclick="apagarJogoTabuleiro()" id="btnApagar">
+            <input type="button" value="Cancelar" onclick="cancelarEdicao()" id="btnCancelar">
+        </td></tr>
+    </table>
+
+    <p style="font-weight:bold" id="paragrafoMensagem"></p>
+
+    <table id="tabelaJogosTabuleiro">
+        <tr><td><input type="button" value="Novo" onclick="novoJogoTabuleiro()" id="btnNovo"></td> <td></td> <td></td></tr>
+        <tr> <th>ID</th> <th>Nome</th> <th>Qtd. Mínima</th> <th>Qtd. Máxima</th> <th>Idade Mínima</th> <th>Duração</th> <th>Ano</th> </tr>
+        <tbody id="corpoTabelaJogosTabuleiro"> </tbody>
+    </table>
+
+    <script src="jogos-tabuleiro-rest.js"></script>
+    <script>
+        const tabelaJogosTabuleiro = document.querySelector('#tabelaJogosTabuleiro');
+        const tabelaFormulario = document.querySelector('#tabelaFormulario');
+        const corpoTabela = document.querySelector('#corpoTabelaJogosTabuleiro');
+        const paragrafoMensagem = document.querySelector('#paragrafoMensagem');
+        const txtNome = document.querySelector('#txtNome');
+        const txtQtdeMinima = document.querySelector('#txtQtdeMinima');
+        const txtQtdeMaxima = document.querySelector('#txtQtdeMaxima');
+        const txtIdadeMinima = document.querySelector('#txtIdadeMinima');
+        const txtDuracaoMedia = document.querySelector('#txtDuracaoMedia');
+        const txtAnoLancamento = document.querySelector('#txtAnoLancamento');
+        const txtId = document.querySelector('#txtId');
+
+        const btnNovo = document.querySelector('#btnNovo');
+        const btnSalvar = document.querySelector('#btnSalvar');
+        const btnApagar = document.querySelector('#btnApagar');
+        const btnCancelar = document.querySelector('#btnCancelar');
+        var criandoNovoJogoTabuleiro = false;
+
+        inicializar();
+
+        function inicializar() {
+            criandoNovoJogoTabuleiro = false;
+            paragrafoMensagem.textContent = 'Pressione o botão Novo ou selecione um jogo da lista:';
+            txtId.value = '';
+            txtNome.value = '';
+            txtQtdeMinima.value = '';
+            txtQtdeMaxima.value = '';
+            txtIdadeMinima.value = '';
+            txtDuracaoMedia.value = '';
+            txtAnoLancamento.value = '';
+            txtId.disabled = true;
+            txtNome.disabled = true;
+            txtQtdeMinima.disabled = true;
+            txtQtdeMaxima.disabled = true;
+            txtIdadeMinima.disabled = true;
+            txtDuracaoMedia.disabled = true;
+            txtAnoLancamento.disabled = true;
+
+            btnNovo.disabled = false;
+            btnSalvar.disabled = true;
+            btnApagar.disabled = true;
+            btnCancelar.disabled = true;
+
+            tabelaFormulario.style.display = 'none';
+            tabelaJogosTabuleiro.style.display = 'inline';
+
+            listarTodosJogosTabuleiro();
+        }
+
+        function listarTodosJogosTabuleiro() {
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = "Erro ao listar jogos de tabuleiro (código " + error.message + ")";
+            }
+            asyncLerJogosTabuleiro(preencherTabela, errorHandler);
+        }
+
+        function preencherTabela(jogosTabuleiro) {
+            corpoTabela.innerHTML = "";
+            var n = jogosTabuleiro.length;
+            for (var i = 0; i < n; i++) {
+                let jogo = jogosTabuleiro[i];
+                let linha = corpoTabela.insertRow();
+                let celulaId = linha.insertCell();
+                let celulaNome = linha.insertCell();
+                let celulaQtdeMinima = linha.insertCell();
+                let celulaQtdeMaxima = linha.insertCell();
+                let celulaIdadeMinima = linha.insertCell();
+                let celulaDuracao = linha.insertCell();
+                let celulaAno = linha.insertCell();
+
+                let alink = document.createElement('a');
+                alink.textContent = jogo.id;
+                alink.href = "javascript:void(0)";
+                alink.onclick = function() { selecionarJogoTabuleiro(jogo.id); };
+                celulaId.appendChild(alink);
+                celulaNome.textContent = jogo.nome;
+                celulaQtdeMinima.textContent = jogo.qtdeMinimaJogadores;
+                celulaQtdeMaxima.textContent = jogo.qtdeMaximaJogadores;
+                celulaIdadeMinima.textContent = jogo.idadeMinima;
+                celulaDuracao.textContent = jogo.duracaoMediaMinutos;
+                celulaAno.textContent = jogo.anoLancamento;
+            }
+        }
+
+        function selecionarJogoTabuleiro(id) {
+            criandoNovoJogoTabuleiro = false;
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = "Erro ao selecionar jogo de tabuleiro (código " + error.message + ")";
+            }
+            asyncLerJogoTabuleiroById(id, preencherFormulario, errorHandler);
+        }
+
+        function preencherFormulario(jogoTabuleiro) {
+            paragrafoMensagem.textContent = 'Altere e salve os dados do jogo, ou apague o registro.';
+            txtId.value = jogoTabuleiro.id;
+            txtNome.value = jogoTabuleiro.nome;
+            txtQtdeMinima.value = jogoTabuleiro.qtdeMinimaJogadores;
+            txtQtdeMaxima.value = jogoTabuleiro.qtdeMaximaJogadores;
+            txtIdadeMinima.value = jogoTabuleiro.idadeMinima;
+            txtDuracaoMedia.value = jogoTabuleiro.duracaoMediaMinutos;
+            txtAnoLancamento.value = jogoTabuleiro.anoLancamento;
+
+            txtId.disabled = true;
+            txtNome.disabled = false;
+            txtQtdeMinima.disabled = false;
+            txtQtdeMaxima.disabled = false;
+            txtIdadeMinima.disabled = false;
+            txtDuracaoMedia.disabled = false;
+            txtAnoLancamento.disabled = false;
+
+            btnNovo.disabled = true;
+            btnSalvar.disabled = false;
+            btnApagar.disabled = false;
+            btnCancelar.disabled = false;
+
+            tabelaFormulario.style.display = 'inline';
+            tabelaJogosTabuleiro.style.display = 'none';
+        }
+
+        function novoJogoTabuleiro() {
+            paragrafoMensagem.textContent = 'Preencha os dados do novo jogo de tabuleiro...';
+            criandoNovoJogoTabuleiro = true;
+
+            txtId.value = '';
+            txtNome.value = '';
+            txtQtdeMinima.value = '';
+            txtQtdeMaxima.value = '';
+            txtIdadeMinima.value = '';
+            txtDuracaoMedia.value = '';
+            txtAnoLancamento.value = '';
+
+            txtId.disabled = true;
+            txtNome.disabled = false;
+            txtQtdeMinima.disabled = false;
+            txtQtdeMaxima.disabled = false;
+            txtIdadeMinima.disabled = false;
+            txtDuracaoMedia.disabled = false;
+            txtAnoLancamento.disabled = false;
+
+            btnNovo.disabled = true;
+            btnSalvar.disabled = false;
+            btnApagar.disabled = true;
+            btnCancelar.disabled = false;
+
+            tabelaFormulario.style.display = 'inline';
+            tabelaJogosTabuleiro.style.display = 'none';
+        }
+
+        function salvarJogoTabuleiro() {
+            if (criandoNovoJogoTabuleiro) {
+                criarJogoTabuleiro();
+            } else {
+                alterarJogoTabuleiro();
+            }
+        }
+
+        function criarJogoTabuleiro() {
+            const dadosJogoTabuleiro = {
+                'nome': txtNome.value,
+                'qtdeMinimaJogadores': txtQtdeMinima.value,
+                'qtdeMaximaJogadores': txtQtdeMaxima.value,
+                'idadeMinima': txtIdadeMinima.value,
+                'duracaoMediaMinutos': txtDuracaoMedia.value,
+                'anoLancamento': txtAnoLancamento.value
+            };
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao criar novo jogo de tabuleiro (código ' + error.message + ')';
+            }
+            asyncCriarJogoTabuleiro(dadosJogoTabuleiro, inicializar, errorHandler);
+        }
+
+        function alterarJogoTabuleiro() {
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao alterar jogo de tabuleiro (código ' + error.message + ')';
+            }
+            const dadosJogoTabuleiro = {
+                'id': txtId.value,
+                'nome': txtNome.value,
+                'qtdeMinimaJogadores': txtQtdeMinima.value,
+                'qtdeMaximaJogadores': txtQtdeMaxima.value,
+                'idadeMinima': txtIdadeMinima.value,
+                'duracaoMediaMinutos': txtDuracaoMedia.value,
+                'anoLancamento': txtAnoLancamento.value
+            };
+            asyncAlterarJogoTabuleiro(dadosJogoTabuleiro, inicializar, errorHandler);
+        }
+
+        function cancelarEdicao() {
+            inicializar();
+        }
+
+        function apagarJogoTabuleiro() {
+            const id = txtId.value;
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao apagar jogo de tabuleiro (código ' + error.message + ')';
+            }
+            asyncApagarJogoTabuleiro(id, inicializar, errorHandler);
+        }
+
+    </script>
+</body>
+</html>
