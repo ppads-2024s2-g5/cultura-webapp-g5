@@ -5,7 +5,6 @@ import com.example.demo.entities.itemCultural.ItemCultural;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="jogos_tabuleiro")
 public class JogoTabuleiro extends ItemCultural{
 
     private int qtdeMinimaJogadores;
