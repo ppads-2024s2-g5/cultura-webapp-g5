@@ -1,4 +1,4 @@
-package com.example.demo.jogoTabuleiro;
+package com.example.demo.entities.jogoTabuleiro;
 
 import org.springframework.data.repository.CrudRepository;
 

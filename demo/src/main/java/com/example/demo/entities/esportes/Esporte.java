@@ -1,10 +1,10 @@
-package com.example.demo.jogoTabuleiro;
+package com.example.demo.entities.esportes;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="jogos_tabuleiro")
-public class JogoTabuleiro {
+@Table(name="esportes")
+public class Esporte {
 
     @Id @GeneratedValue
 	private long id;
@@ -12,65 +12,36 @@ public class JogoTabuleiro {
     private String nome;
     private int qtdeMinimaJogadores;
     private int qtdeMaximaJogadores;
-    private int idadeMinima;
-    private int duracaoMediaMinutos;
-    private int anoLancamento;
-
-    // Getters e Setters
+    private String tipo;
 
     public long getId(){
         return id;
     }
-
     public void setId(long id){
         this.id = id;
     }
-
     public String getNome(){
         return nome;
     }
-
     public void setNome(String nome){
         this.nome = nome;
     }
-
     public int getQtdeMinimaJogadores(){
         return qtdeMinimaJogadores;
     }
-
     public void setQtdeMinimaJogadores(int qtdeMinimaJogadores){
         this.qtdeMinimaJogadores = qtdeMinimaJogadores;
     }
-
-    public int getQtdeMaximaJogadores(){
+    public int getQtdeMaximainimaJogadores(){
         return qtdeMaximaJogadores;
     }
-
     public void setQtdeMaximaJogadores(int qtdeMaximaJogadores){
         this.qtdeMaximaJogadores = qtdeMaximaJogadores;
     }
-
-    public int getIdadeMinima(){
-        return idadeMinima;
+    public String getTipo(){
+        return tipo;
     }
-
-    public void setIdadeMinima(int idadeMinima){
-        this.idadeMinima = idadeMinima;
-    }
-
-    public int getDuracaoMediaMinutos(){
-        return duracaoMediaMinutos;
-    }
-
-    public void setDuracaoMediaMinutos(int duracaoMediaMinutos){
-        this.duracaoMediaMinutos = duracaoMediaMinutos;
-    }
-
-    public int getAnoLancamento(){
-        return anoLancamento;
-    }
-
-    public void setAnoLancamento(int anoLancamento){
-        this.anoLancamento = anoLancamento;
+    public void setTipo(String tipo){
+        this.tipo = tipo;
     }
 }

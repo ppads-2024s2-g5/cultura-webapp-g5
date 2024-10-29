@@ -1,4 +1,4 @@
-package com.example.demo.Esportes;
+package com.example.demo.entities.esportes;
 
 import java.util.Optional;
 

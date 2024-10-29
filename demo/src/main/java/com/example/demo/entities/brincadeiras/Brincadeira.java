@@ -1,4 +1,4 @@
-package com.example.demo.Brincadeiras;
+package com.example.demo.entities.brincadeiras;
 import jakarta.persistence.*;
 
 @Entity

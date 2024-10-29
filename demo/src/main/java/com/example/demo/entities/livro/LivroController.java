@@ -1,4 +1,4 @@
-package com.example.demo.Livro;
+package com.example.demo.entities.livro;
 
 import java.util.Optional;
 
