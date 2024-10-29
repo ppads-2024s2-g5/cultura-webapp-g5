@@ -30,5 +30,5 @@ public class ItemCultural {
     private String descricao;
 
     @Column(name = "data_criacao")
-    private Instant dataCriacao;
+    private Instant dataCriacao = Instant.now();
 }
