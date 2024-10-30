@@ -5,7 +5,7 @@ import com.example.demo.entities.itemCultural.ItemCultural;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="jogos_tabuleiro")
+@DiscriminatorValue("JOGOTABULEIRO")
 public class JogoTabuleiro extends ItemCultural{
 
     private int qtdeMinimaJogadores;
