@@ -6,10 +6,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
-@Entity 
+@Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "tipo_item", discriminatorType = DiscriminatorType.STRING)
-public abstract class ItemCultural {
+@DiscriminatorColumn(name = "item_type", discriminatorType = DiscriminatorType.STRING)
+public class ItemCultural {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
