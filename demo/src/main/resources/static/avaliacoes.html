@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gerenciamento de Avaliações</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+</head>
+
+<body>
+    <h1>Gerenciamento de Avaliações</h1>
+
+    <table id="tabelaFormulario">
+        <tr>
+            <td>ID:</td>
+            <td><input type="text" id="txtId" disabled></td>
+        </tr>
+        <tr>
+            <td>Nota:</td>
+            <td><input type="number" id="txtNota" min="0" max="10"></td>
+        </tr>
+        <tr>
+            <td>Comentário:</td>
+            <td><textarea id="txtComentario"></textarea></td>
+        </tr>
+        <tr>
+            <td>ID do Item Cultural:</td>
+            <td><input type="number" id="txtItemCulturalId"></td>
+        </tr>
+        <tr>
+            <td>ID do Geek:</td>
+            <td><input type="number" id="txtGeekId"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" value="Salvar" onclick="salvarAvaliacao()" id="btnSalvar">
+                <input type="button" value="Apagar" onclick="apagarAvaliacao()" id="btnApagar">
+                <input type="button" value="Cancelar" onclick="cancelarEdicao()" id="btnCancelar">
+            </td>
+        </tr>
+    </table>
+
+    <p style="font-weight:bold" id="paragrafoMensagem"></p>
+
+    <table id="tabelaAvaliacoes">
+        <tr>
+            <td><input type="button" value="Novo" onclick="novoAvaliacao()" id="btnNovo"></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>ID</th>
+            <th>Nota</th>
+            <th>Comentário</th>
+            <th>Item Cultural ID</th>
+            <th>Geek ID</th>
+        </tr>
+        <tbody id="corpoTabelaAvaliacoes"></tbody>
+    </table>
+
+    <script src="avaliacoes-rest.js"></script>
+    <script>
+        const tabelaAvaliacoes = document.querySelector('#tabelaAvaliacoes');
+        const corpoTabela = document.querySelector('#corpoTabelaAvaliacoes');
+        const paragrafoMensagem = document.querySelector('#paragrafoMensagem');
+        const txtNota = document.querySelector('#txtNota');
+        const txtComentario = document.querySelector('#txtComentario');
+        const txtItemCulturalId = document.querySelector('#txtItemCulturalId');
+        const txtGeekId = document.querySelector('#txtGeekId');
+        const txtId = document.querySelector('#txtId');
+
+        const btnNovo = document.querySelector('#btnNovo');
+        const btnSalvar = document.querySelector('#btnSalvar');
+        const btnApagar = document.querySelector('#btnApagar');
+        const btnCancelar = document.querySelector('#btnCancelar');
+        var criandoNovaAvaliacao = false;
+
+        inicializar();
+
+        function inicializar() {
+            criandoNovaAvaliacao = false;
+            paragrafoMensagem.textContent = 'Pressione o botão Novo ou selecione uma avaliação da lista:';
+            txtId.value = '';
+            txtNota.value = '';
+            txtComentario.value = '';
+            txtItemCulturalId.value = '';
+            txtGeekId.value = '';
+
+            btnNovo.disabled = false;
+            btnSalvar.disabled = true;
+            btnApagar.disabled = true;
+            btnCancelar.disabled = true;
+
+            listarTodasAvaliacoes();
+        }
+
+        function listarTodasAvaliacoes() {
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = "Erro ao listar avaliações (código " + error.message + ")";
+            }
+            asyncLerAvaliacoes(preencherTabela, errorHandler);
+        }
+
+        function preencherTabela(avaliacoes) {
+            corpoTabela.innerHTML = "";
+            var n = avaliacoes.length;
+            for (var i = 0; i < n; i++) {
+                let avaliacao = avaliacoes[i];
+                let linha = corpoTabela.insertRow();
+                let celulaId = linha.insertCell();
+                let celulaNota = linha.insertCell();
+                let celulaComentario = linha.insertCell();
+                let celulaItemCulturalId = linha.insertCell();
+                let celulaGeekId = linha.insertCell();
+
+                let alink = document.createElement('a');
+                alink.textContent = avaliacao.id;
+                alink.href = "javascript:void(0)";
+                alink.onclick = function() { selecionarAvaliacao(avaliacao.id); };
+                celulaId.appendChild(alink);
+                celulaNota.textContent = avaliacao.nota;
+                celulaComentario.textContent = avaliacao.comentario;
+                celulaItemCulturalId.textContent = avaliacao.itemCultural.id; // Supondo que o item cultural tem um ID
+                celulaGeekId.textContent = avaliacao.geek.id; // Supondo que o geek tem um ID
+            }
+        }
+
+        function selecionarAvaliacao(id) {
+            criandoNovaAvaliacao = false;
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = "Erro ao selecionar avaliação (código " + error.message + ")";
+            }
+            asyncLerAvaliacaoById(id, preencherFormulario, errorHandler);
+        }
+
+        function preencherFormulario(avaliacao) {
+            paragrafoMensagem.textContent = 'Altere e salve os dados da avaliação, ou apague o registro.';
+            txtId.value = avaliacao.id;
+            txtNota.value = avaliacao.nota;
+            txtComentario.value = avaliacao.comentario;
+            txtItemCulturalId.value = avaliacao.itemCultural.id; // Atualize o ID do item cultural
+            txtGeekId.value = avaliacao.geek.id; // Atualize o ID do geek
+
+            txtId.disabled = true;
+            txtNota.disabled = false;
+            txtComentario.disabled = false;
+            txtItemCulturalId.disabled = false;
+            txtGeekId.disabled = false;
+
+            btnNovo.disabled = true;
+            btnSalvar.disabled = false;
+            btnApagar.disabled = false;
+            btnCancelar.disabled = false;
+
+            tabelaFormulario.style.display = 'inline';
+            tabelaAvaliacoes.style.display = 'none';
+        }
+
+        function novoAvaliacao() {
+            paragrafoMensagem.textContent = 'Preencha os dados da nova avaliação...';
+            criandoNovaAvaliacao = true;
+
+            txtId.value = '';
+            txtNota.value = '';
+            txtComentario.value = '';
+            txtItemCulturalId.value = '';
+            txtGeekId.value = '';
+
+            txtId.disabled = true;
+            txtNota.disabled = false;
+            txtComentario.disabled = false;
+            txtItemCulturalId.disabled = false;
+            txtGeekId.disabled = false;
+
+            btnNovo.disabled = true;
+            btnSalvar.disabled = false;
+            btnApagar.disabled = true;
+            btnCancelar.disabled = false;
+
+            tabelaFormulario.style.display = 'inline';
+            tabelaAvaliacoes.style.display = 'none';
+        }
+
+        function salvarAvaliacao() {
+            if (criandoNovaAvaliacao) {
+                criarAvaliacao();
+            } else {
+                alterarAvaliacao();
+            }
+        }
+
+        function criarAvaliacao() {
+            const dadosAvaliacao = {
+                'nota': txtNota.value,
+                'comentario': txtComentario.value,
+                'itemCultural': { id: txtItemCulturalId.value },
+                'geek': { id: txtGeekId.value }
+            };
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao criar nova avaliação (código ' + error.message + ')';
+            }
+            asyncCriarAvaliacao(dadosAvaliacao, inicializar, errorHandler);
+        }
+
+        function alterarAvaliacao() {
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao alterar avaliação (código ' + error.message + ')';
+            }
+            const dadosAvaliacao = {
+                'id': txtId.value,
+                'nota': txtNota.value,
+                'comentario': txtComentario.value,
+                'itemCultural': { id: txtItemCulturalId.value },
+                'geek': { id: txtGeekId.value }
+            };
+            asyncAlterarAvaliacao(dadosAvaliacao, inicializar, errorHandler);
+        }
+
+        function cancelarEdicao() {
+            inicializar();
+        }
+
+        function apagarAvaliacao() {
+            const id = txtId.value;
+            const errorHandler = function(error) {
+                paragrafoMensagem.textContent = 'Erro ao apagar avaliação (código ' + error.message + ')';
+            }
+            asyncApagarAvaliacao(id, inicializar, errorHandler);
+        }
+
+    </script>
+</body>
+</html>
