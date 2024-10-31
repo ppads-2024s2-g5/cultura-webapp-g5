@@ -1,38 +1,19 @@
 package com.example.demo.entities.livro;
 
+import com.example.demo.entities.itemCultural.ItemCultural;
+
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="livros")
-public class Livro {
+@DiscriminatorValue("LIVRO")
+public class Livro extends ItemCultural{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    private String autor;
     private int numeroDePaginas;
     private String genero;
     private String titulo;
 
     public Livro() {
         super();
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getAutor() {
-        return autor;
-    }
-
-    public void setAutor(String autor) {
-        this.autor = autor;
     }
 
     public int getNumeroDePaginas() {
