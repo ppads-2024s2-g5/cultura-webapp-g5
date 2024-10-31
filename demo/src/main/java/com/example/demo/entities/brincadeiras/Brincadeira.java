@@ -1,13 +1,11 @@
 package com.example.demo.entities.brincadeiras;
+import com.example.demo.entities.itemCultural.ItemCultural;
+
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="brincadeira")
-public class Brincadeira {
-    @Id @GeneratedValue
-    private long id;
-    
-    private String nome;
+@DiscriminatorValue("BRINCADEIRA")
+public class Brincadeira extends ItemCultural { 
     private int qtdeMinimaJogadores;
     private int qtdeMaximaJogadores;
     private String habilidadePrincipal;
@@ -15,20 +13,7 @@ public class Brincadeira {
     public Brincadeira() {
         super();
     }
-
-    public long getId() {
-        return id;
-    }
-    public void setId(long id) {
-        this.id = id;
-    }
-    public String getNome() {
-        return nome;
-    }
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-      
+     
     public int getQtdeMinimaJogadores() {
         return qtdeMinimaJogadores;
     }
